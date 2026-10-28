@@ -1,0 +1,29 @@
+# UMC Web Frontend
+
+UMC 웹 파트 워크북 프론트엔드 실습·미션 기록입니다.
+
+## 기술 스택
+- HTML, CSS, JavaScript, TypeScript
+- React + Vite, TanStack Router, Tailwind CSS
+- Zustand, TanStack Query, ky
+- 패키지 매니저: pnpm
+
+## 폴더 구조
+| 폴더 | 내용 |
+|---|---|
+| `week00-web-basics/` | 0주차 HTML/CSS/JS 자기소개 카드 |
+| `week01-typescript/` | 1주차 TypeScript 기초 |
+| `umcine/` | 2주차부터 이어서 만드는 영화 서비스 |
+| `docs/weeks/` | 주차별 개념 정리 |
+
+## 진행 현황
+| 주차 | 주제 | PR |
+|---|---|---|
+| 0 | HTML/CSS/JavaScript 기초와 개발 환경 | |
+| 1 | TypeScript | |
+| 2 | React | |
+| 3 | TanStack Router, Tailwind CSS | |
+| 4 | Web Storage, Zustand | |
+| 5 | API 요청과 서버 데이터 연동 | |
+| 6 | TanStack Query | |
+| 7 | 인증과 회원가입 | |
