@@ -18,4 +18,4 @@ export default function MovieGrid({ movies, onToggleBookmark }: MovieGridProps) 
       ))}
     </section>
   );
-}
+} 
