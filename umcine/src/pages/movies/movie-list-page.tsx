@@ -2,7 +2,6 @@ import { useState } from "react";
 import { movies as initialMovies } from "../../data/movies";
 import MovieGrid from "../../components/movies/movie-grid";
 import Pagination from "../../components/movies/pagination";
-import "../../App.css";
 
 export function MovieListPage() {
   const [movies, setMovies] = useState(initialMovies);
@@ -23,13 +22,16 @@ export function MovieListPage() {
   }
 
   return (
-    <div>
+    <div className="mx-auto max-w-[1200px] px-6 py-10">
+      <h1 className="mb-6 text-2xl font-bold">영화 목록</h1>
       <MovieGrid movies={currentMovies} onToggleBookmark={handleToggleBookmark} />
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
     </div>
   );
 }

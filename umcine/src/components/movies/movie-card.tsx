@@ -9,34 +9,46 @@ interface MovieCardProps {
 
 export default function MovieCard({ movie, onToggleBookmark }: MovieCardProps) {
   return (
-    <article className="relative overflow-hidden rounded-[10px] border border-gray-200 bg-white shadow-sm">
-      <Link
-        to="/movies/$movieId"
-        params={{ movieId: String(movie.id) }}
-        className="block"
-      >
-        <img
-          src={movie.posterPath}
-          alt={`${movie.title} 포스터`}
-          className="aspect-[2/3] w-full object-cover"
-        />
-        <div className="p-3">
-          <h3 className="truncate text-base font-bold text-gray-900">{movie.title}</h3>
-          <p className="mt-1 text-sm text-gray-500">{movie.releaseDate}</p>
-        </div>
-      </Link>
+    <article className="group">
+      <div className="relative">
+        <Link
+          to="/movies/$movieId"
+          params={{ movieId: String(movie.id) }}
+          className="block overflow-hidden rounded-lg"
+        >
+          <img
+            src={movie.posterPath}
+            alt={`${movie.title} 포스터`}
+            className="aspect-[2/3] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </Link>
 
-      <button
-        type="button"
-        onClick={() => onToggleBookmark(movie.id)}
-        aria-pressed={movie.isBookmarked}
-        className={cn(
-          "absolute right-2 top-2 rounded-full px-3 py-1 text-xs text-white",
-          movie.isBookmarked ? "bg-blue-600" : "bg-black/60",
-        )}
-      >
-        {movie.isBookmarked ? "북마크됨" : "북마크"}
-      </button>
+        <button
+          type="button"
+          onClick={() => onToggleBookmark(movie.id)}
+          aria-pressed={movie.isBookmarked}
+          aria-label={movie.isBookmarked ? "북마크 해제" : "북마크"}
+          className={cn(
+            "absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-md shadow",
+            movie.isBookmarked ? "bg-blue-600" : "bg-white/90 hover:bg-white",
+          )}
+        >
+          <img
+            src={
+              movie.isBookmarked
+                ? "/icons/movie-icons/bookmark.svg"
+                : "/icons/movie-icons/bookmark-outline.svg"
+            }
+            alt=""
+            className={cn("h-4 w-4", movie.isBookmarked && "brightness-0 invert")}
+          />
+        </button>
+      </div>
+
+      <Link to="/movies/$movieId" params={{ movieId: String(movie.id) }}>
+        <h3 className="mt-2 truncate text-sm font-semibold text-gray-900">{movie.title}</h3>
+      </Link>
+      <p className="mt-0.5 text-xs text-gray-400">{movie.releaseDate}</p>
     </article>
   );
 }
