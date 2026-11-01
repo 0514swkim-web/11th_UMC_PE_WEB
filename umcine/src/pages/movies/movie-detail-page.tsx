@@ -1,41 +1,103 @@
 import { Link, useParams } from "@tanstack/react-router";
-import { useState } from "react";
-import { movies } from "../../data/movies";
+import { useEffect, useState, type ReactNode } from "react";
+import { getMovieDetail } from "../../api/movies/get-movie-detail";
+import type { TmdbMovieDetail } from "../../api/movies/models";
+import { MoviePoster } from "../../components/movies/movie-poster";
 import { useBookmarkStore } from "../../stores/bookmark-store";
 import { cn } from "../../utils/cn";
+import { formatReleaseDate } from "../../utils/movies/format-release-date";
+import { formatRuntime } from "../../utils/movies/format-runtime";
+import { getMovieDetailErrorMessage } from "../../utils/movies/get-movie-detail-error-message";
+import { getTmdbBackdropUrl } from "../../utils/movies/tmdb-image";
+
+function DetailMessage({ children }: { children: ReactNode }) {
+  return (
+    <div className="mx-auto max-w-[1200px] px-6 py-32 text-center">
+      <p className="text-gray-500">{children}</p>
+      <Link
+        to="/"
+        className="mt-4 inline-block text-sm font-semibold text-blue-600 hover:underline"
+      >
+        영화 목록으로
+      </Link>
+    </div>
+  );
+}
 
 export function MovieDetailPage() {
   const { movieId } = useParams({ from: "/movies/$movieId" });
-  const movie = movies.find((item) => item.id === Number(movieId));
+  const parsedMovieId = Number(movieId);
+  const isValidMovieId = Number.isInteger(parsedMovieId) && parsedMovieId > 0;
+
+  const [movie, setMovie] = useState<TmdbMovieDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const isBookmarked = useBookmarkStore((state) =>
-    state.bookmarkedMovieIds.includes(Number(movieId)),
+    state.bookmarkedMovieIds.includes(parsedMovieId),
   );
   const toggleBookmark = useBookmarkStore((state) => state.toggleBookmark);
   const [rating, setRating] = useState(0);
 
-  if (!movie) {
-    return (
-      <div className="mx-auto max-w-[1200px] px-6 py-32 text-center">
-        <p className="text-gray-500">영화를 찾을 수 없어요.</p>
-        <Link
-          to="/"
-          className="mt-4 inline-block text-sm font-semibold text-blue-600 hover:underline"
-        >
-          영화 목록으로
-        </Link>
-      </div>
-    );
+  useEffect(() => {
+    let ignore = false;
+
+    setMovie(null);
+    setErrorMessage(null);
+
+    if (!isValidMovieId) {
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+
+    async function loadMovie() {
+      try {
+        const response = await getMovieDetail(parsedMovieId);
+        if (!ignore) setMovie(response);
+      } catch (error) {
+        if (!ignore) setErrorMessage(getMovieDetailErrorMessage(error));
+      } finally {
+        if (!ignore) setIsLoading(false);
+      }
+    }
+
+    loadMovie();
+
+    return () => {
+      ignore = true;
+    };
+  }, [parsedMovieId, isValidMovieId]);
+
+  if (!isValidMovieId) {
+    return <DetailMessage>올바르지 않은 영화 번호예요.</DetailMessage>;
   }
+  if (isLoading) {
+    return <DetailMessage>영화 정보를 불러오는 중이에요.</DetailMessage>;
+  }
+  if (errorMessage || !movie) {
+    return <DetailMessage>{errorMessage ?? "영화 정보를 불러오지 못했어요."}</DetailMessage>;
+  }
+
+  const backdropUrl = getTmdbBackdropUrl(movie.backdrop_path);
+  const genreNames = movie.genres.map((genre) => genre.name).join(", ");
 
   return (
     <div>
       <section className="relative h-[360px] overflow-hidden bg-gray-900">
-        <img
-          src={movie.backdropPath}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+        {backdropUrl ? (
+          <img
+            src={backdropUrl}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-300 text-sm text-gray-500">
+            이미지 없음
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
 
         <div className="relative mx-auto flex h-full max-w-[1200px] flex-col justify-between px-6 py-6 text-white">
@@ -53,9 +115,10 @@ export function MovieDetailPage() {
 
           <div>
             <h1 className="text-4xl font-bold">{movie.title}</h1>
-            <p className="mt-2 text-sm text-white/80">{movie.originalTitle}</p>
+            <p className="mt-2 text-sm text-white/80">{movie.original_title}</p>
             <p className="mt-2 text-sm font-semibold">
-              {movie.releaseDate} · {movie.genres.join(" · ")} · {movie.runtime}
+              {formatReleaseDate(movie.release_date)} · {genreNames || "장르 정보 없음"} ·{" "}
+              {formatRuntime(movie.runtime)}
             </p>
           </div>
         </div>
@@ -63,14 +126,16 @@ export function MovieDetailPage() {
 
       <section className="mx-auto flex max-w-[1200px] flex-col gap-10 px-6 py-10 lg:flex-row">
         <div className="flex flex-1 gap-8">
-          <img
-            src={movie.posterPath}
-            alt={`${movie.title} 포스터`}
-            className="aspect-[2/3] w-44 shrink-0 rounded-lg object-cover shadow-xl"
+          <MoviePoster
+            posterPath={movie.poster_path}
+            title={movie.title}
+            className="w-44 shrink-0 rounded-lg shadow-xl"
           />
           <div>
-            <h2 className="text-lg font-bold">{movie.tagline}</h2>
-            <p className="mt-3 text-sm leading-relaxed text-gray-600">{movie.overview}</p>
+            {movie.tagline && <h2 className="text-lg font-bold">{movie.tagline}</h2>}
+            <p className="mt-3 text-sm leading-relaxed text-gray-600">
+              {movie.overview || "줄거리 정보가 없어요."}
+            </p>
 
             <button
               type="button"
