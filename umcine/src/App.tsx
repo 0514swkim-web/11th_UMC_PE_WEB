@@ -6,7 +6,7 @@ import MovieGrid from "./components/movie-grid";
 import Pagination from "./components/pagination";
 
 export default function App() {
-  const [movies, setMovies] = useState(initialMovies);
+  const [movies, setMovies] = useState<Movie[]>(initialMovies);
   const [currentPage, setCurrentPage] = useState(1);
   
   const moviesPerPage = 10;
