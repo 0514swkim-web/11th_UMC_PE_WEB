@@ -5,7 +5,14 @@ export function Footer() {
         <img src="/images/images/logos/tmdb-logo.svg" alt="TMDB" className="h-3" />
         <p>
           This product uses the TMDB API but is not endorsed or certified by{" "}
-          <span className="underline">TMDB</span>.
+          <a
+            href="https://www.themoviedb.org/"
+            target="_blank"
+            rel="noreferrer"
+            className="underline hover:text-gray-700"
+          >
+            TMDB
+          </a>.
         </p>
       </div>
     </footer>
