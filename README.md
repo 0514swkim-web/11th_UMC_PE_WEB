@@ -25,7 +25,7 @@ UMC 웹 파트 워크북 프론트엔드 실습·미션 기록입니다.
 | 1 | TypeScript | | [미션 실행](docs/captures/week01/02-mission-run.png) · [미션 코드](docs/captures/week01/03-mission-code.png) |
 | 2 | React | | [영화 목록](docs/captures/week02/01-movie-list.png) · [북마크 후](docs/captures/week02/03-bookmark-after.png) |
 | 3 | TanStack Router, Tailwind CSS | | [검색 결과](docs/captures/week03/02-search-result.png) · [상세](docs/captures/week03/05-detail.png) |
-| 4 | Web Storage, Zustand | | |
+| 4 | Web Storage, Zustand | | [localStorage 값](docs/captures/week04/04-application-panel.png) · [검색 화면 북마크](docs/captures/week04/03-bookmark-search.png) |
 | 5 | API 요청과 서버 데이터 연동 | | |
 | 6 | TanStack Query | | |
 | 7 | 인증과 회원가입 | | |
