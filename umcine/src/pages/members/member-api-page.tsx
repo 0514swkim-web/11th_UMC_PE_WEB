@@ -203,7 +203,7 @@ export function MemberApiPage() {
     <div className="mx-auto max-w-[800px] px-6 py-10">
       <h1 className="text-2xl font-bold">회원 API 연결</h1>
       <p className="mt-1 text-sm text-gray-500">
-        우리 NestJS 서버(localhost:3000)의 API를 브라우저에서 직접 호출해요.
+        우리 Spring 서버(localhost:8080)의 API를 브라우저에서 직접 호출해요.
       </p>
 
       <div className="mt-8 flex flex-col gap-6">

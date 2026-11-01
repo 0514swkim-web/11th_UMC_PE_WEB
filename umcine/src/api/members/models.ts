@@ -1,4 +1,4 @@
-// 백엔드 CheckResponseDto, RatingResponseDto와 같은 모양
+// 백엔드 NicknameCheckResponse·EmailCheckResponse, RatingResponse(record)와 같은 모양
 interface CheckAvailabilityResponse {
   available: boolean;
 }
