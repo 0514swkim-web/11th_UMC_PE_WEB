@@ -25,6 +25,11 @@ export function Header() {
                 <span className={cn(navLinkClass, isActive && activeClass)}>검색</span>
               )}
             </Link>
+            <Link to="/members">
+              {({ isActive }) => (
+                <span className={cn(navLinkClass, isActive && activeClass)}>회원 API</span>
+              )}
+            </Link>
             <span className={cn(navLinkClass, "cursor-not-allowed text-gray-400")}>
               내 정보
             </span>
