@@ -8,19 +8,14 @@ interface MovieGridProps {
 
 export default function MovieGrid({ movies, onToggleBookmark }: MovieGridProps) {
   return (
-    <div style={{ 
-      display: "grid", 
-      gridTemplateColumns: "repeat(5, 1fr)",  // 한 줄에 5개씩
-      gap: "20px",
-      padding: "20px"
-    }}>
+    <section className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
       {movies.map((movie) => (
-        <MovieCard 
+        <MovieCard
           key={movie.id}
           movie={movie}
           onToggleBookmark={onToggleBookmark}
         />
       ))}
-    </div>
+    </section>
   );
 }
