@@ -20,7 +20,7 @@ export function Header() {
                 <span className={cn(navLinkClass, isActive && activeClass)}>영화</span>
               )}
             </Link>
-            <Link to="/search">
+            <Link to="/search" activeOptions={{ includeSearch: false }}>
               {({ isActive }) => (
                 <span className={cn(navLinkClass, isActive && activeClass)}>검색</span>
               )}
