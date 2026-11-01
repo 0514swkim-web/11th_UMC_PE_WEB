@@ -1,7 +1,7 @@
 import { Link, useParams } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getMovieDetail } from "../../api/movies/get-movie-detail";
-import type { TmdbMovieDetail } from "../../api/movies/models";
 import { MoviePoster } from "../../components/movies/movie-poster";
 import { useBookmarkStore } from "../../stores/bookmark-store";
 import { cn } from "../../utils/cn";
@@ -29,9 +29,14 @@ export function MovieDetailPage() {
   const parsedMovieId = Number(movieId);
   const isValidMovieId = Number.isInteger(parsedMovieId) && parsedMovieId > 0;
 
-  const [movie, setMovie] = useState<TmdbMovieDetail | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const movieDetailQuery = useQuery({
+    queryKey: ["movies", "detail", parsedMovieId],
+    queryFn: () => getMovieDetail(parsedMovieId),
+    enabled: isValidMovieId,
+    staleTime: 30 * 1000,
+  });
+
+  const movie = movieDetailQuery.data;
 
   const isBookmarked = useBookmarkStore((state) =>
     state.bookmarkedMovieIds.includes(parsedMovieId),
@@ -39,45 +44,19 @@ export function MovieDetailPage() {
   const toggleBookmark = useBookmarkStore((state) => state.toggleBookmark);
   const [rating, setRating] = useState(0);
 
-  useEffect(() => {
-    let ignore = false;
-
-    setMovie(null);
-    setErrorMessage(null);
-
-    if (!isValidMovieId) {
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-
-    async function loadMovie() {
-      try {
-        const response = await getMovieDetail(parsedMovieId);
-        if (!ignore) setMovie(response);
-      } catch (error) {
-        if (!ignore) setErrorMessage(getMovieDetailErrorMessage(error));
-      } finally {
-        if (!ignore) setIsLoading(false);
-      }
-    }
-
-    loadMovie();
-
-    return () => {
-      ignore = true;
-    };
-  }, [parsedMovieId, isValidMovieId]);
-
+  // 잘못된 번호는 요청을 안 해서 isPending이 계속 true → 로딩보다 먼저 확인
   if (!isValidMovieId) {
     return <DetailMessage>올바르지 않은 영화 번호예요.</DetailMessage>;
   }
-  if (isLoading) {
+  if (movieDetailQuery.isPending) {
     return <DetailMessage>영화 정보를 불러오는 중이에요.</DetailMessage>;
   }
-  if (errorMessage || !movie) {
-    return <DetailMessage>{errorMessage ?? "영화 정보를 불러오지 못했어요."}</DetailMessage>;
+  if (movieDetailQuery.isError || !movie) {
+    return (
+      <DetailMessage>
+        {getMovieDetailErrorMessage(movieDetailQuery.error)}
+      </DetailMessage>
+    );
   }
 
   const backdropUrl = getTmdbBackdropUrl(movie.backdrop_path);
@@ -117,8 +96,8 @@ export function MovieDetailPage() {
             <h1 className="text-4xl font-bold">{movie.title}</h1>
             <p className="mt-2 text-sm text-white/80">{movie.original_title}</p>
             <p className="mt-2 text-sm font-semibold">
-              {formatReleaseDate(movie.release_date)} · {genreNames || "장르 정보 없음"} ·{" "}
-              {formatRuntime(movie.runtime)}
+              {formatReleaseDate(movie.release_date)} ·{" "}
+              {genreNames || "장르 정보 없음"} · {formatRuntime(movie.runtime)}
             </p>
           </div>
         </div>
@@ -132,7 +111,9 @@ export function MovieDetailPage() {
             className="w-44 shrink-0 rounded-lg shadow-xl"
           />
           <div>
-            {movie.tagline && <h2 className="text-lg font-bold">{movie.tagline}</h2>}
+            {movie.tagline && (
+              <h2 className="text-lg font-bold">{movie.tagline}</h2>
+            )}
             <p className="mt-3 text-sm leading-relaxed text-gray-600">
               {movie.overview || "줄거리 정보가 없어요."}
             </p>
@@ -155,7 +136,10 @@ export function MovieDetailPage() {
                     : "/icons/movie-icons/bookmark-outline.svg"
                 }
                 alt=""
-                className={cn("h-4 w-4", !isBookmarked && "brightness-0 invert")}
+                className={cn(
+                  "h-4 w-4",
+                  !isBookmarked && "brightness-0 invert",
+                )}
               />
               {isBookmarked ? "즐겨찾기됨" : "즐겨찾기"}
             </button>
@@ -164,7 +148,9 @@ export function MovieDetailPage() {
 
         <aside className="w-full border-gray-200 lg:w-72 lg:border-l lg:pl-10">
           <h2 className="font-bold">내 평점</h2>
-          <p className="mt-1 text-xs text-gray-400">별점을 선택하고 한 줄 평을 남겨 보세요.</p>
+          <p className="mt-1 text-xs text-gray-400">
+            별점을 선택하고 한 줄 평을 남겨 보세요.
+          </p>
 
           <div className="mt-3 flex gap-1">
             {[1, 2, 3, 4, 5].map((score) => (
@@ -175,7 +161,9 @@ export function MovieDetailPage() {
                 aria-label={`${score}점`}
                 className={cn(
                   "flex h-8 w-8 items-center justify-center rounded border",
-                  score <= rating ? "border-yellow-400 bg-yellow-50" : "border-gray-200 bg-white",
+                  score <= rating
+                    ? "border-yellow-400 bg-yellow-50"
+                    : "border-gray-200 bg-white",
                 )}
               >
                 <img

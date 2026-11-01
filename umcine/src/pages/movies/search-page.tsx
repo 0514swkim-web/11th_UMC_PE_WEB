@@ -1,6 +1,6 @@
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useEffect, useState, type SubmitEvent } from "react";
-import type { TmdbMovieListItem } from "../../api/movies/models";
+import { useQuery } from "@tanstack/react-query";
 import { searchMovies } from "../../api/movies/search-movies";
 import { BookmarkButton } from "../../components/bookmark-button";
 import { MoviePoster } from "../../components/movies/movie-poster";
@@ -12,45 +12,20 @@ export function SearchPage() {
   const navigate = useNavigate({ from: "/search" });
   const [searchText, setSearchText] = useState(query);
 
-  const [movies, setMovies] = useState<TmdbMovieListItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   useEffect(() => {
     setSearchText(query);
   }, [query]);
 
-  useEffect(() => {
-    let ignore = false;
-    const normalizedQuery = query.trim();
+  const normalizedQuery = query.trim();
 
-    setMovies([]);
-    setErrorMessage(null);
+  const searchQuery = useQuery({
+    queryKey: ["movies", "search", { query: normalizedQuery }],
+    queryFn: () => searchMovies({ query: normalizedQuery }),
+    enabled: normalizedQuery.length > 0,
+  });
 
-    if (!normalizedQuery) {
-      setIsLoading(false);
-      return;
-    }
-
-    setIsLoading(true);
-
-    searchMovies({ query: normalizedQuery })
-      .then((response) => {
-        if (!ignore) setMovies(response.results);
-      })
-      .catch(() => {
-        if (!ignore) setErrorMessage("검색 결과를 불러오지 못했어요.");
-      })
-      .finally(() => {
-        if (!ignore) setIsLoading(false);
-      });
-
-    return () => {
-      ignore = true;
-    };
-  }, [query]);
-
-  const hasQuery = query.trim() !== "";
+  const movies = searchQuery.data?.results ?? [];
+  const hasQuery = normalizedQuery !== "";
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -68,7 +43,11 @@ export function SearchPage() {
         hasQuery ? "border-gray-200" : "border-gray-900 shadow-lg",
       )}
     >
-      <img src="/icons/movie-icons/search.svg" alt="" className="h-4 w-4 opacity-60" />
+      <img
+        src="/icons/movie-icons/search.svg"
+        alt=""
+        className="h-4 w-4 opacity-60"
+      />
       <input
         aria-label="검색어"
         placeholder="예: 스파이더맨"
@@ -83,7 +62,11 @@ export function SearchPage() {
           aria-label="검색어 지우기"
           className="flex h-6 w-6 items-center justify-center rounded hover:bg-gray-100"
         >
-          <img src="/icons/movie-icons/close.svg" alt="" className="h-3.5 w-3.5 opacity-60" />
+          <img
+            src="/icons/movie-icons/close.svg"
+            alt=""
+            className="h-3.5 w-3.5 opacity-60"
+          />
         </button>
       )}
       <button
@@ -112,23 +95,35 @@ export function SearchPage() {
 
       <div className="mt-8 flex items-center justify-between border-b border-gray-200 pb-3">
         <h2 className="font-semibold">‘{query}’ 검색 결과</h2>
-        {!isLoading && !errorMessage && (
+        {searchQuery.isSuccess && (
           <p className="text-xs text-gray-400">영화 {movies.length}편</p>
         )}
       </div>
 
-      {isLoading ? (
-        <p className="py-20 text-center text-sm text-gray-500">검색 결과를 불러오는 중이에요.</p>
-      ) : errorMessage ? (
-        <p className="py-20 text-center text-sm text-red-600">{errorMessage}</p>
+      {searchQuery.isLoading ? (
+        <p className="py-20 text-center text-sm text-gray-500">
+          검색 결과를 불러오는 중이에요.
+        </p>
+      ) : searchQuery.isError ? (
+        <p className="py-20 text-center text-sm text-red-600">
+          검색 결과를 불러오지 못했어요.
+        </p>
       ) : movies.length === 0 ? (
-        <p className="py-20 text-center text-sm text-gray-500">조건에 맞는 영화가 없어요.</p>
+        <p className="py-20 text-center text-sm text-gray-500">
+          조건에 맞는 영화가 없어요.
+        </p>
       ) : (
         <ul className="grid grid-cols-1 gap-x-12 md:grid-cols-2">
           {movies.map((movie) => (
-            <li key={movie.id} className="flex gap-5 border-b border-gray-200 py-6">
+            <li
+              key={movie.id}
+              className="flex gap-5 border-b border-gray-200 py-6"
+            >
               <div className="relative shrink-0">
-                <Link to="/movies/$movieId" params={{ movieId: String(movie.id) }}>
+                <Link
+                  to="/movies/$movieId"
+                  params={{ movieId: String(movie.id) }}
+                >
                   <MoviePoster
                     posterPath={movie.poster_path}
                     title={movie.title}
@@ -140,7 +135,8 @@ export function SearchPage() {
               <div className="flex min-w-0 flex-col">
                 <h3 className="font-bold">{movie.title}</h3>
                 <p className="mt-1 text-xs text-gray-400">
-                  {movie.original_title} · {formatReleaseDate(movie.release_date)}
+                  {movie.original_title} ·{" "}
+                  {formatReleaseDate(movie.release_date)}
                 </p>
                 <p className="mt-2 line-clamp-2 text-sm text-gray-600">
                   {movie.overview || "줄거리 정보가 없어요."}
