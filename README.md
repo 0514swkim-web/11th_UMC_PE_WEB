@@ -22,7 +22,7 @@ UMC 웹 파트 워크북 프론트엔드 실습·미션 기록입니다.
 | 주차 | 주제 | PR | 핵심 캡처 |
 |---|---|---|---|
 | 0 | HTML/CSS/JavaScript 기초와 개발 환경 | | [자기소개](docs/captures/week00/02-introduce.png) · [Elements](docs/captures/week00/04-devtools-elements.png) |
-| 1 | TypeScript | | |
+| 1 | TypeScript | | [미션 실행](docs/captures/week01/02-mission-run.png) · [미션 코드](docs/captures/week01/03-mission-code.png) |
 | 2 | React | | |
 | 3 | TanStack Router, Tailwind CSS | | |
 | 4 | Web Storage, Zustand | | |
