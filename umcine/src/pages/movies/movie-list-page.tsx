@@ -2,10 +2,15 @@ import { useState } from "react";
 import { movies as initialMovies } from "../../data/movies";
 import MovieGrid from "../../components/movies/movie-grid";
 import Pagination from "../../components/movies/pagination";
+import { readBookmarkIds, saveBookmarkIds } from "../../utils/bookmark-storage";
 
 export function MovieListPage() {
-  const [movies, setMovies] = useState(initialMovies);
+  const [bookmarkedMovieIds, setBookmarkedMovieIds] = useState(() => readBookmarkIds());
   const [currentPage, setCurrentPage] = useState(1);
+  const movies = initialMovies.map((movie) => ({
+    ...movie,
+    isBookmarked: bookmarkedMovieIds.includes(movie.id),
+  }));
   const moviesPerPage = 10;
   const totalPages = Math.ceil(movies.length / moviesPerPage);
   const currentMovies = movies.slice(
@@ -14,11 +19,12 @@ export function MovieListPage() {
   );
 
   function handleToggleBookmark(movieId: number) {
-    setMovies((prev) =>
-      prev.map((m) =>
-        m.id === movieId ? { ...m, isBookmarked: !m.isBookmarked } : m,
-      ),
-    );
+    const nextMovieIds = bookmarkedMovieIds.includes(movieId)
+      ? bookmarkedMovieIds.filter((id) => id !== movieId)
+      : [...bookmarkedMovieIds, movieId];
+
+    setBookmarkedMovieIds(nextMovieIds);
+    saveBookmarkIds(nextMovieIds);
   }
 
   return (
