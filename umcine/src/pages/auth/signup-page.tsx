@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { checkEmail } from "../../api/members/check-email";
+import { checkNickname } from "../../api/members/check-nickname";
 
 // 이메일 형식 검사
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,6 +18,13 @@ const DEFAULT_FORM = {
 type DefaultFormKey = keyof typeof DEFAULT_FORM;
 type DefaultFormValue = (typeof DEFAULT_FORM)[DefaultFormKey];
 
+const DEFAULT_DUPLICATE_CHECK = {
+  isChecking: false,
+  isAvailable: false,
+};
+
+type DuplicateCheckKey = "email" | "nickname";
+
 // 여러 곳에서 반복되는 Tailwind 클래스
 const labelClass = "mb-2 block text-sm font-semibold text-gray-900";
 const inputClass =
@@ -26,6 +35,10 @@ const errorClass = "mt-2 text-xs text-red-600";
 
 export function SignupPage() {
   const [form, setForm] = useState(DEFAULT_FORM);
+  const [duplicateCheck, setDuplicateCheck] = useState({
+    email: DEFAULT_DUPLICATE_CHECK,
+    nickname: DEFAULT_DUPLICATE_CHECK,
+  });
 
   // 입력값의 유효성 검사
   const isEmailValid = EMAIL_REGEX.test(form.email.trim());
@@ -49,8 +62,61 @@ export function SignupPage() {
     isPasswordValid &&
     isPasswordConfirmValid;
 
+  // 입력 조건과 두 중복 확인을 모두 통과해야 제출 가능
+  const canSubmit =
+    isFormValid &&
+    duplicateCheck.email.isAvailable &&
+    duplicateCheck.nickname.isAvailable;
+
   const handleChangeField = (key: DefaultFormKey, value: DefaultFormValue) => {
+    if (key === "email" || key === "nickname") {
+      if (duplicateCheck[key].isChecking) return;
+      // 확인한 값을 바꾸면 다시 중복 확인해야 함
+      setDuplicateCheck((prev) => ({
+        ...prev,
+        [key]: DEFAULT_DUPLICATE_CHECK,
+      }));
+    }
     setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleCheckDuplicate = async (key: DuplicateCheckKey) => {
+    const isValid = key === "email" ? isEmailValid : isNicknameValid;
+    if (!isValid || duplicateCheck[key].isChecking) return;
+
+    const label = key === "email" ? "이메일" : "닉네임";
+    setDuplicateCheck((prev) => ({
+      ...prev,
+      [key]: { isChecking: true, isAvailable: false },
+    }));
+
+    try {
+      const response =
+        key === "email"
+          ? await checkEmail(form.email.trim())
+          : await checkNickname(form.nickname.trim());
+      const isAvailable = response.available;
+      setDuplicateCheck((prev) => ({
+        ...prev,
+        [key]: { ...prev[key], isAvailable },
+      }));
+      alert(
+        isAvailable
+          ? `사용할 수 있는 ${label}이에요.`
+          : `이미 사용 중인 ${label}이에요.`,
+      );
+    } catch {
+      setDuplicateCheck((prev) => ({
+        ...prev,
+        [key]: { ...prev[key], isAvailable: false },
+      }));
+      alert("중복 확인에 실패했어요. 다시 시도해 주세요.");
+    } finally {
+      setDuplicateCheck((prev) => ({
+        ...prev,
+        [key]: { ...prev[key], isChecking: false },
+      }));
+    }
   };
 
   const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -77,15 +143,16 @@ export function SignupPage() {
               value={form.email}
               onChange={(e) => handleChangeField("email", e.target.value)}
               placeholder="example@email.com"
+              disabled={duplicateCheck.email.isChecking}
               className={`${inputClass} pr-20`}
             />
-            {/* 3.3에서 중복 확인 기능 연결 */}
             <button
               type="button"
-              disabled={!isEmailValid}
+              disabled={!isEmailValid || duplicateCheck.email.isChecking}
+              onClick={() => handleCheckDuplicate("email")}
               className={checkButtonClass}
             >
-              중복 확인
+              {duplicateCheck.email.isChecking ? "확인 중" : "중복 확인"}
             </button>
           </div>
           {showEmailError && (
@@ -104,15 +171,16 @@ export function SignupPage() {
               value={form.nickname}
               onChange={(e) => handleChangeField("nickname", e.target.value)}
               placeholder="2~12자"
+              disabled={duplicateCheck.nickname.isChecking}
               className={`${inputClass} pr-20`}
             />
-            {/* 3.3에서 중복 확인 기능 연결 */}
             <button
               type="button"
-              disabled={!isNicknameValid}
+              disabled={!isNicknameValid || duplicateCheck.nickname.isChecking}
+              onClick={() => handleCheckDuplicate("nickname")}
               className={checkButtonClass}
             >
-              중복 확인
+              {duplicateCheck.nickname.isChecking ? "확인 중" : "중복 확인"}
             </button>
           </div>
           {showNicknameError && (
@@ -161,7 +229,7 @@ export function SignupPage() {
 
         <button
           type="submit"
-          disabled={!isFormValid}
+          disabled={!canSubmit}
           className="h-12 w-full rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-600/40"
         >
           가입하기
