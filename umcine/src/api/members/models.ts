@@ -12,4 +12,27 @@ interface MemberRating {
   updatedAt: string;
 }
 
-export type { CheckAvailabilityResponse, MemberRating };
+// 백엔드 SignUpRequest, ApiResponse<MemberResponse>(record)와 같은 모양
+interface SignupRequest {
+  email: string;
+  nickname: string;
+  password: string;
+}
+
+interface SignupResponse {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: {
+    memberId: number;
+    email: string;
+    nickname: string;
+  };
+}
+
+export type {
+  CheckAvailabilityResponse,
+  MemberRating,
+  SignupRequest,
+  SignupResponse,
+};
