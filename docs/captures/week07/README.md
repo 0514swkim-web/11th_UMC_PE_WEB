@@ -14,6 +14,12 @@
 | `06-nickname-available.png` | 3.3 사용할 수 있는 닉네임 | ✅ |
 | `07-can-submit.png` | 3.3 입력 조건과 두 중복 확인을 통과해 가입하기 활성화 | ✅ |
 | `08-recheck-required.png` | 3.3 확인한 이메일을 고치면 가입하기가 다시 비활성화 | ✅ |
+| `09-signup-email-available.png` | 3.4 가입 전 이메일 중복 확인 통과 | ✅ |
+| `10-signup-nickname-available.png` | 3.4 가입 전 닉네임 중복 확인 통과 | ✅ |
+| `11-signup-ready.png` | 3.4 가입하기 버튼 활성화 | ✅ |
+| `12-signup-success.png` | 3.4 회원가입 성공 | ✅ |
+| `13-signup-failure.png` | 3.4 같은 값으로 다시 가입하면 실패 안내 | ✅ |
+| `14-signup-email-used.png` | 3.4 가입한 이메일이 이미 사용 중으로 바뀜 | ✅ |
 
 ## 미리보기
 
@@ -32,3 +38,11 @@
 ### 3.3 가입하기 활성화와 재확인
 ![](07-can-submit.png)
 ![](08-recheck-required.png)
+
+### 3.4 회원가입 요청
+![](09-signup-email-available.png)
+![](10-signup-nickname-available.png)
+![](11-signup-ready.png)
+![](12-signup-success.png)
+![](13-signup-failure.png)
+![](14-signup-email-used.png)
