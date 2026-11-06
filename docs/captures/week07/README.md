@@ -20,6 +20,10 @@
 | `12-signup-success.png` | 3.4 회원가입 성공 | ✅ |
 | `13-signup-failure.png` | 3.4 같은 값으로 다시 가입하면 실패 안내 | ✅ |
 | `14-signup-email-used.png` | 3.4 가입한 이메일이 이미 사용 중으로 바뀜 | ✅ |
+| `15-login-input.png` | 필수 미션 로그인 화면과 입력값 반영 | ✅ |
+| `16-my-info.png` | 필수 미션 내 정보 조회와 내 즐겨찾기 | ✅ |
+| `17-my-info-edit-image.png` | 필수 미션 내 정보 수정과 프로필 이미지 미리보기 | ✅ |
+| `18-my-info-nickname-saved.png` | 필수 미션 닉네임 저장 후 내 정보에 반영 | ✅ |
 
 ## 미리보기
 
@@ -46,3 +50,9 @@
 ![](12-signup-success.png)
 ![](13-signup-failure.png)
 ![](14-signup-email-used.png)
+
+### 필수 미션
+![](15-login-input.png)
+![](16-my-info.png)
+![](17-my-info-edit-image.png)
+![](18-my-info-nickname-saved.png)
