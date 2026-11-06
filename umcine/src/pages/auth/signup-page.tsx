@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { checkEmail } from "../../api/members/check-email";
 import { checkNickname } from "../../api/members/check-nickname";
 import { signup } from "../../api/members/signup";
-// import { useNavigate } from "@tanstack/react-router";
 
 // 이메일 형식 검사
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,7 +42,7 @@ export function SignupPage() {
     nickname: DEFAULT_DUPLICATE_CHECK,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // 입력값의 유효성 검사
   const isEmailValid = EMAIL_REGEX.test(form.email.trim());
@@ -136,8 +136,7 @@ export function SignupPage() {
         password: form.password,
       });
       alert(response.message);
-      // 로그인 페이지 연결 후 주석 해제
-      // navigate({ to: "/login" });
+      navigate({ to: "/login" });
     } catch {
       alert("회원가입에 실패했어요. 다시 시도해 주세요.");
     } finally {
@@ -257,10 +256,9 @@ export function SignupPage() {
 
       <p className="mt-6 text-center text-xs text-gray-500">
         이미 계정이 있나요?{" "}
-        {/* 로그인 페이지를 만든 뒤 Link로 바꾸기 */}
-        <a href="/login" className="font-semibold text-blue-600">
+        <Link to="/login" className="font-semibold text-blue-600">
           로그인
-        </a>
+        </Link>
       </p>
     </div>
   );
