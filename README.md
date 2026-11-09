@@ -28,4 +28,4 @@ UMC 웹 파트 워크북 프론트엔드 실습·미션 기록입니다.
 | 4 | Web Storage, Zustand | | [localStorage 값](docs/captures/week04/04-application-panel.png) · [검색 화면 북마크](docs/captures/week04/03-bookmark-search.png) |
 | 5 | API 요청과 서버 데이터 연동 | | [Network 응답](docs/captures/week05/01-network-fetch.png) · [오류 화면](docs/captures/week05/06-error.png) |
 | 6 | TanStack Query | | [query key](docs/captures/week06/01-list-query-keys.png) · [캐시 재사용](docs/captures/week06/05-stale-time-network.png) |
-| 7 | 인증과 회원가입 | | |
+| 7 | 인증과 회원가입 | | [회원가입 성공](docs/captures/week07/12-signup-success.png) · [내 정보](docs/captures/week07/16-my-info.png) |

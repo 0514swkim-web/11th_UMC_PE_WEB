@@ -30,9 +30,11 @@ export function Header() {
                 <span className={cn(navLinkClass, isActive && activeClass)}>회원 API</span>
               )}
             </Link>
-            <span className={cn(navLinkClass, "cursor-not-allowed text-gray-400")}>
-              내 정보
-            </span>
+            <Link to="/me">
+              {({ isActive }) => (
+                <span className={cn(navLinkClass, isActive && activeClass)}>내 정보</span>
+              )}
+            </Link>
           </nav>
         </div>
 
@@ -44,12 +46,12 @@ export function Header() {
           >
             <img src="/icons/movie-icons/search.svg" alt="" className="h-5 w-5" />
           </Link>
-          <button
-            type="button"
+          <Link
+            to="/login"
             className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
             로그인
-          </button>
+          </Link>
         </div>
       </div>
     </header>
