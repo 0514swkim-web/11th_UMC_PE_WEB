@@ -1,6 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { getMe } from "../../api/members/me";
+import { useMeQuery } from "../../hooks/use-me-query";
 import { useAuthStore } from "../../stores/auth-store";
 import { cn } from "../../utils/cn";
 
@@ -10,13 +9,7 @@ const activeClass = "font-semibold text-gray-900 underline underline-offset-8";
 export function Header() {
   const accessToken = useAuthStore((state) => state.accessToken);
   // 내 정보(서버 상태)는 store에 복사하지 않고 query 캐시에서 꺼내 씀
-  const meQuery = useQuery({
-    queryKey: ["members", "me"],
-    queryFn: getMe,
-    enabled: Boolean(accessToken), // 토큰이 있을 때만 요청
-    staleTime: 5 * 60 * 1000, // 내 정보는 자주 안 바뀌니 5분 동안 최신으로 취급
-    retry: false, // 401로 토큰을 지운 뒤 같은 요청을 또 보내지 않게
-  });
+  const meQuery = useMeQuery();
 
   return (
     <header className="border-b border-gray-200 bg-white">

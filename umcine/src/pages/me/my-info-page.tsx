@@ -4,15 +4,16 @@ import { Link } from "@tanstack/react-router";
 import { getMovieDetail } from "../../api/movies/get-movie-detail";
 import MovieGrid from "../../components/movies/movie-grid";
 import Pagination from "../../components/movies/pagination";
+import { useMeQuery } from "../../hooks/use-me-query";
 import { useBookmarkStore } from "../../stores/bookmark-store";
-import { useMyInfoStore } from "../../stores/my-info-store";
 
 const BOOKMARKS_PER_PAGE = 10;
 
 export function MyInfoPage() {
   const [page, setPage] = useState(1);
-  const nickname = useMyInfoStore((state) => state.nickname);
-  const email = useMyInfoStore((state) => state.email);
+  // 7주차 임시 store 대신 헤더와 같은 query 캐시에서 읽음 → 두 화면 값이 항상 같음
+  const meQuery = useMeQuery();
+  const me = meQuery.data;
   const bookmarkedMovieIds = useBookmarkStore(
     (state) => state.bookmarkedMovieIds,
   );
@@ -62,16 +63,34 @@ export function MyInfoPage() {
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-gray-200">
             <img src="/icons/movie-icons/person.svg" alt="" className="h-9 w-9" />
           </div>
-          <dl className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <dt className="text-xs text-gray-400">닉네임</dt>
-              <dd className="mt-1 text-sm font-semibold">{nickname}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-gray-400">이메일</dt>
-              <dd className="mt-1 text-sm font-semibold">{email}</dd>
-            </div>
-          </dl>
+          {meQuery.isLoading ? (
+            <p className="text-sm text-gray-500">내 정보를 불러오는 중이에요.</p>
+          ) : !me ? (
+            // 토큰이 없거나(요청 안 함) 401로 토큰이 지워진 경우
+            <p className="text-sm text-gray-500">
+              로그인이 필요해요.{" "}
+              <Link to="/login" className="font-semibold text-blue-600">
+                로그인하기
+              </Link>
+            </p>
+          ) : (
+            <dl className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-3">
+              <div>
+                <dt className="text-xs text-gray-400">닉네임</dt>
+                <dd className="mt-1 text-sm font-semibold">{me.nickname}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-gray-400">이메일</dt>
+                <dd className="mt-1 text-sm font-semibold">{me.email}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-gray-400">가입일</dt>
+                <dd className="mt-1 text-sm font-semibold">
+                  {new Date(me.createdAt).toLocaleDateString("ko-KR")}
+                </dd>
+              </div>
+            </dl>
+          )}
         </div>
       </section>
 
