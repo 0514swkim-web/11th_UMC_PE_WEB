@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { checkEmail } from "../../api/members/check-email";
 import { checkNickname } from "../../api/members/check-nickname";
-import { signup } from "../../api/members/signup";
+import { useSignupMutation } from "../../hooks/use-signup-mutation";
 
 // 이메일 형식 검사
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -41,8 +41,7 @@ export function SignupPage() {
     email: DEFAULT_DUPLICATE_CHECK,
     nickname: DEFAULT_DUPLICATE_CHECK,
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
+  const signupMutation = useSignupMutation();
 
   // 입력값의 유효성 검사
   const isEmailValid = EMAIL_REGEX.test(form.email.trim());
@@ -123,25 +122,17 @@ export function SignupPage() {
     }
   };
 
-  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     // 폼 제출 시 페이지 새로고침 방지
     e.preventDefault();
-    if (!canSubmit || isSubmitting) return;
+    if (!canSubmit || signupMutation.isPending) return;
 
-    setIsSubmitting(true);
-    try {
-      const response = await signup({
-        email: form.email.trim(),
-        nickname: form.nickname.trim(),
-        password: form.password,
-      });
-      alert(response.message);
-      navigate({ to: "/login" });
-    } catch {
-      alert("회원가입에 실패했어요. 다시 시도해 주세요.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    // 요청을 보내기만 하고, 성공·실패 처리는 useSignupMutation이 맡음
+    signupMutation.mutate({
+      email: form.email.trim(),
+      nickname: form.nickname.trim(),
+      password: form.password,
+    });
   };
 
   // noValidate는 폼 제출 시 브라우저의 기본 유효성 검사를 끔
@@ -247,10 +238,10 @@ export function SignupPage() {
 
         <button
           type="submit"
-          disabled={!canSubmit || isSubmitting}
+          disabled={!canSubmit || signupMutation.isPending}
           className="h-12 w-full rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-600/40"
         >
-          {isSubmitting ? "가입 중" : "가입하기"}
+          {signupMutation.isPending ? "가입 중" : "가입하기"}
         </button>
       </form>
 
