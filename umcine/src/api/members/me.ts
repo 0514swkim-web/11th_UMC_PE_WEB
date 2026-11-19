@@ -2,6 +2,7 @@ import { authApi } from "../auth-api";
 
 // 백엔드 MemberInfoResponse(record)와 같은 모양
 export interface MemberInfo {
+  memberId: number; // 8주차 BE에서 추가: 내 평점 조회(GET /members/{memberId}/ratings)에 사용
   email: string;
   nickname: string;
   createdAt: string;
