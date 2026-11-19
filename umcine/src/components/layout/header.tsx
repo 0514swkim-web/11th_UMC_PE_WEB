@@ -1,10 +1,23 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { getMe } from "../../api/members/me";
+import { useAuthStore } from "../../stores/auth-store";
 import { cn } from "../../utils/cn";
 
 const navLinkClass = "text-sm text-gray-600 hover:text-gray-900";
 const activeClass = "font-semibold text-gray-900 underline underline-offset-8";
 
 export function Header() {
+  const accessToken = useAuthStore((state) => state.accessToken);
+  // 내 정보(서버 상태)는 store에 복사하지 않고 query 캐시에서 꺼내 씀
+  const meQuery = useQuery({
+    queryKey: ["members", "me"],
+    queryFn: getMe,
+    enabled: Boolean(accessToken), // 토큰이 있을 때만 요청
+    staleTime: 5 * 60 * 1000, // 내 정보는 자주 안 바뀌니 5분 동안 최신으로 취급
+    retry: false, // 401로 토큰을 지운 뒤 같은 요청을 또 보내지 않게
+  });
+
   return (
     <header className="border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
@@ -46,12 +59,24 @@ export function Header() {
           >
             <img src="/icons/movie-icons/search.svg" alt="" className="h-5 w-5" />
           </Link>
-          <Link
-            to="/login"
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-          >
-            로그인
-          </Link>
+          {/* 토큰 없음 → 로그인 / 첫 조회 중 → 버튼 크기 로딩 / 토큰 있음 → 마이페이지 */}
+          {!accessToken ? (
+            <Link
+              to="/login"
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              로그인
+            </Link>
+          ) : meQuery.isLoading ? (
+            <span className="h-9 w-24 animate-pulse rounded-md bg-gray-200" />
+          ) : (
+            <Link
+              to="/me"
+              className="rounded-md border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50"
+            >
+              {meQuery.data ? `${meQuery.data.nickname}님` : "마이페이지"}
+            </Link>
+          )}
         </div>
       </div>
     </header>
