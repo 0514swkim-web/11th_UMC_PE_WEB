@@ -1,10 +1,10 @@
 import { Link, useParams } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getMovieDetail } from "../../api/movies/get-movie-detail";
+import { FavoriteToggleButton } from "../../components/movies/favorite-toggle-button";
 import { MoviePoster } from "../../components/movies/movie-poster";
-import { useBookmarkStore } from "../../stores/bookmark-store";
-import { cn } from "../../utils/cn";
+import { MyRatingPanel } from "../../components/movies/my-rating-panel";
 import { formatReleaseDate } from "../../utils/movies/format-release-date";
 import { formatRuntime } from "../../utils/movies/format-runtime";
 import { getMovieDetailErrorMessage } from "../../utils/movies/get-movie-detail-error-message";
@@ -37,12 +37,6 @@ export function MovieDetailPage() {
   });
 
   const movie = movieDetailQuery.data;
-
-  const isBookmarked = useBookmarkStore((state) =>
-    state.bookmarkedMovieIds.includes(parsedMovieId),
-  );
-  const toggleBookmark = useBookmarkStore((state) => state.toggleBookmark);
-  const [rating, setRating] = useState(0);
 
   // 잘못된 번호는 요청을 안 해서 isPending이 계속 true → 로딩보다 먼저 확인
   if (!isValidMovieId) {
@@ -118,78 +112,13 @@ export function MovieDetailPage() {
               {movie.overview || "줄거리 정보가 없어요."}
             </p>
 
-            <button
-              type="button"
-              onClick={() => toggleBookmark(movie.id)}
-              aria-pressed={isBookmarked}
-              className={cn(
-                "mt-6 inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold",
-                isBookmarked
-                  ? "border border-blue-600 bg-white text-blue-600 hover:bg-blue-50"
-                  : "bg-blue-600 text-white hover:bg-blue-700",
-              )}
-            >
-              <img
-                src={
-                  isBookmarked
-                    ? "/icons/movie-icons/bookmark.svg"
-                    : "/icons/movie-icons/bookmark-outline.svg"
-                }
-                alt=""
-                className={cn(
-                  "h-4 w-4",
-                  !isBookmarked && "brightness-0 invert",
-                )}
-              />
-              {isBookmarked ? "즐겨찾기됨" : "즐겨찾기"}
-            </button>
+            {/* 8주차: 브라우저 저장 대신 즐겨찾기 API(여부 조회·등록·해제)와 연결 */}
+            <FavoriteToggleButton movieId={movie.id} />
           </div>
         </div>
 
-        <aside className="w-full border-gray-200 lg:w-72 lg:border-l lg:pl-10">
-          <h2 className="font-bold">내 평점</h2>
-          <p className="mt-1 text-xs text-gray-400">
-            별점을 선택하고 한 줄 평을 남겨 보세요.
-          </p>
-
-          <div className="mt-3 flex gap-1">
-            {[1, 2, 3, 4, 5].map((score) => (
-              <button
-                key={score}
-                type="button"
-                onClick={() => setRating(score)}
-                aria-label={`${score}점`}
-                className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded border",
-                  score <= rating
-                    ? "border-yellow-400 bg-yellow-50"
-                    : "border-gray-200 bg-white",
-                )}
-              >
-                <img
-                  src={
-                    score <= rating
-                      ? "/icons/movie-icons/star.svg"
-                      : "/icons/movie-icons/star-outline.svg"
-                  }
-                  alt=""
-                  className="h-4 w-4"
-                />
-              </button>
-            ))}
-          </div>
-
-          <textarea
-            placeholder="영화를 보고 느낀 점을 남겨 보세요."
-            className="mt-4 h-24 w-full resize-none rounded-md border border-gray-200 bg-white p-3 text-sm outline-none focus:border-gray-400"
-          />
-          <button
-            type="button"
-            className="mt-3 w-full rounded-md bg-gray-900 py-2.5 text-sm font-semibold text-white hover:bg-gray-700"
-          >
-            평점 저장
-          </button>
-        </aside>
+        {/* 8주차: 화면만 있던 평점 칸을 평점 API(조회·등록·수정·삭제)와 연결 */}
+        <MyRatingPanel movieId={movie.id} />
       </section>
     </div>
   );
