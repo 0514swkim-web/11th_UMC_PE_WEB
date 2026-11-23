@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { MemberInfo } from "../../api/members/me";
+import { LoginAgainLink } from "../../components/auth/login-again-link";
 import { useMeQuery } from "../../hooks/use-me-query";
 import { useUpdateMeMutation } from "../../hooks/use-update-me-mutation";
 
@@ -26,10 +26,7 @@ export function MyInfoEditPage() {
   if (!meQuery.data) {
     return (
       <p className="py-32 text-center text-sm text-gray-500">
-        로그인이 필요해요.{" "}
-        <Link href="/login" className="font-semibold text-blue-600">
-          로그인하기
-        </Link>
+        로그인이 필요해요. <LoginAgainLink />
       </p>
     );
   }

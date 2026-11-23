@@ -1,7 +1,9 @@
 "use client";
 
 import { useQueries } from "@tanstack/react-query";
+import { HTTPError } from "ky";
 import Link from "next/link";
+import { LoginAgainLink } from "../../components/auth/login-again-link";
 import { fetchMovieDetail } from "../../api/movies/fetch-movie-detail";
 import MovieGrid from "../../components/movies/movie-grid";
 import Pagination from "../../components/movies/pagination";
@@ -72,12 +74,12 @@ export function MyInfoPage({ page }: MyInfoPageProps) {
           {meQuery.isLoading ? (
             <p className="text-sm text-gray-500">내 정보를 불러오는 중이에요.</p>
           ) : !me ? (
-            // 토큰이 없거나(요청 안 함) 401로 토큰이 지워진 경우
+            // 401로 토큰이 지워졌거나, 서버가 꺼져 있어서 내 정보를 못 받은 경우
             <p className="text-sm text-gray-500">
-              로그인이 필요해요.{" "}
-              <Link href="/login" className="font-semibold text-blue-600">
-                로그인하기
-              </Link>
+              {meQuery.isError && !(meQuery.error instanceof HTTPError)
+                ? "서버에 연결할 수 없어요. 백엔드가 켜져 있는지 확인해 주세요."
+                : "로그인이 필요해요."}{" "}
+              <LoginAgainLink />
             </p>
           ) : (
             <dl className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-3">

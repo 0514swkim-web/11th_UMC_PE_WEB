@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useAuthHydrated, useAuthStore } from "../../stores/auth-store";
+import { getRedirectPath } from "../../utils/get-redirect-path";
 
 function GuardLoading() {
   return (
@@ -22,7 +23,9 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (hasHydrated && !accessToken) {
-      router.replace("/login");
+      // 가려던 주소를 redirect로 같이 넘김 → 로그인 후 그 주소로 돌아옴
+      const from = window.location.pathname + window.location.search;
+      router.replace(`/login?redirect=${encodeURIComponent(from)}`);
     }
   }, [hasHydrated, accessToken, router]);
 
@@ -30,7 +33,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   return children;
 }
 
-// login.tsx의 beforeLoad 대신: 이미 토큰이 있으면 로그인 화면 대신 홈으로
+// login.tsx의 beforeLoad 대신: 이미 토큰이 있으면 로그인 화면 대신 redirect 주소(없으면 홈)로
 export function GuestOnly({ children }: { children: ReactNode }) {
   const router = useRouter();
   const hasHydrated = useAuthHydrated();
@@ -38,7 +41,7 @@ export function GuestOnly({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (hasHydrated && accessToken) {
-      router.replace("/");
+      router.replace(getRedirectPath());
     }
   }, [hasHydrated, accessToken, router]);
 
