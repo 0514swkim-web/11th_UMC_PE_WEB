@@ -1,4 +1,6 @@
-import { useNavigate } from "@tanstack/react-router";
+"use client";
+
+import { useRouter } from "next/navigation";
 import {
   useMyFavoritesQuery,
   useToggleFavoriteMutation,
@@ -15,7 +17,7 @@ interface BookmarkButtonProps {
 // 카드마다 여부를 따로 묻지 않고, 목록 캐시 하나를 여러 카드가 같이 봄 → 요청 1번
 export function BookmarkButton({ movieId }: BookmarkButtonProps) {
   const accessToken = useAuthStore((state) => state.accessToken);
-  const navigate = useNavigate();
+  const router = useRouter();
   const favoritesQuery = useMyFavoritesQuery();
   const toggleMutation = useToggleFavoriteMutation();
 
@@ -26,7 +28,7 @@ export function BookmarkButton({ movieId }: BookmarkButtonProps) {
   const handleClick = () => {
     if (!accessToken) {
       alert("로그인하면 즐겨찾기를 사용할 수 있어요.");
-      navigate({ to: "/login" });
+      router.push("/login");
       return;
     }
     if (toggleMutation.isPending) return;

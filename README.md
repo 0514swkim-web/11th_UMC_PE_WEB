@@ -30,3 +30,4 @@ UMC 웹 파트 워크북 프론트엔드 실습·미션 기록입니다.
 | 6 | TanStack Query | | [query key](docs/captures/week06/01-list-query-keys.png) · [캐시 재사용](docs/captures/week06/05-stale-time-network.png) |
 | 7 | 인증과 회원가입 | | [회원가입 성공](docs/captures/week07/12-signup-success.png) · [내 정보](docs/captures/week07/16-my-info.png) |
 | 8 | TanStack Query로 서버에 데이터 요청하기 (useMutation) | | [setQueryData Network](docs/captures/week08/10-update-me-network-patch-only.png) · [로그인 전용 폴더](docs/captures/week08/11-auth-guard-redirect-login.png) · [평점 등록](docs/captures/week08/12-rating-create.png) · [즐겨찾기 동기화](docs/captures/week08/15b-favorite-detail-to-card-sync.png) |
+| 9 | Next.js 마이그레이션 (App Router, Server/Client Component) | | [영화 목록](docs/captures/week09/01-home.png) · [검색 결과](docs/captures/week09/04-search-result.png) · [상세 메타데이터](docs/captures/week09/05-detail-155.png) · [로그인 전용 폴더](docs/captures/week09/06-me-redirect-login.png) |

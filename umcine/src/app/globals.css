@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* layout.tsx의 next/font 변수(--font-noto-sans-kr)를 Tailwind 기본 글꼴로 */
+@theme inline {
+  --font-sans: var(--font-noto-sans-kr), ui-sans-serif, system-ui, sans-serif;
+}

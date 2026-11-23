@@ -1,11 +1,14 @@
+"use client";
+
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import type { MemberRating } from "../../api/members/models";
 import { useMeQuery } from "../../hooks/use-me-query";
 import {
   useMyRatingMutations,
   useMyRatingsQuery,
 } from "../../hooks/use-my-ratings";
+import { useAuthHydrated } from "../../stores/auth-store";
 import { cn } from "../../utils/cn";
 
 const MAX_COMMENT_LENGTH = 500;
@@ -18,12 +21,14 @@ interface MyRatingPanelProps {
 export function MyRatingPanel({ movieId }: MyRatingPanelProps) {
   const meQuery = useMeQuery();
   const myRatingsQuery = useMyRatingsQuery();
+  const hasHydrated = useAuthHydrated();
 
-  if (!meQuery.data && !meQuery.isLoading) {
+  // 토큰을 읽기 전에는 "로그인하면…"을 먼저 보여 주지 않음 (로그인한 사람에게 잠깐 보이는 깜빡임 방지)
+  if (hasHydrated && !meQuery.data && !meQuery.isLoading) {
     return (
       <PanelFrame>
         <p className="mt-3 text-sm text-gray-500">
-          <Link to="/login" className="font-semibold text-blue-600">
+          <Link href="/login" className="font-semibold text-blue-600">
             로그인
           </Link>
           하면 평점을 남길 수 있어요.
@@ -31,7 +36,7 @@ export function MyRatingPanel({ movieId }: MyRatingPanelProps) {
       </PanelFrame>
     );
   }
-  if (meQuery.isLoading || myRatingsQuery.isPending) {
+  if (!hasHydrated || meQuery.isLoading || myRatingsQuery.isPending) {
     return (
       <PanelFrame>
         <p className="mt-3 text-sm text-gray-500">내 평점을 불러오는 중이에요.</p>

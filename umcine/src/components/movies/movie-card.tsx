@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import Link from "next/link";
 import type { TmdbMovieListItem } from "../../api/movies/models";
 import { formatReleaseDate } from "../../utils/movies/format-release-date";
 import { BookmarkButton } from "../bookmark-button";
@@ -13,8 +13,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
     <article className="group">
       <div className="relative">
         <Link
-          to="/movies/$movieId"
-          params={{ movieId: String(movie.id) }}
+          href={`/movies/${movie.id}`}
           className="block overflow-hidden rounded-lg"
         >
           <MoviePoster
@@ -27,7 +26,7 @@ export default function MovieCard({ movie }: MovieCardProps) {
         <BookmarkButton movieId={movie.id} />
       </div>
 
-      <Link to="/movies/$movieId" params={{ movieId: String(movie.id) }}>
+      <Link href={`/movies/${movie.id}`}>
         <h3 className="mt-2 truncate text-sm font-semibold text-gray-900">{movie.title}</h3>
       </Link>
       <p className="mt-0.5 text-xs text-gray-400">{formatReleaseDate(movie.release_date)}</p>
