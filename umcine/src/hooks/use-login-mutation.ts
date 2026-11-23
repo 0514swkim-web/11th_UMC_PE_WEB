@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
+import { useRouter } from "next/navigation";
 import { login } from "../api/auth/login";
 import { useAuthStore } from "../stores/auth-store";
 
 export function useLoginMutation() {
   // main.tsx의 QueryClientProvider에 넣어 둔 바로 그 queryClient(캐시 창고)를 꺼냄
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
+  const router = useRouter();
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
 
   return useMutation({
@@ -19,7 +19,7 @@ export function useLoginMutation() {
       //    (staleTime 5분이 남아 있어도 기다리지 않음)
       queryClient.invalidateQueries({ queryKey: ["members", "me"] });
       // ③ 홈으로 이동
-      navigate({ to: "/" });
+      router.push("/");
     },
     onError: () => {
       alert("로그인에 실패했어요. 다시 시도해 주세요.");

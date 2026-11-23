@@ -1,75 +1,38 @@
-import { Link } from "@tanstack/react-router";
-import { useMeQuery } from "../../hooks/use-me-query";
-import { useAuthStore } from "../../stores/auth-store";
-import { cn } from "../../utils/cn";
+import Link from "next/link";
+import { Suspense } from "react";
+import { HeaderAuthButton } from "./header-auth-button";
+import { HeaderNav, HeaderNavFallback } from "./header-nav";
 
-const navLinkClass = "text-sm text-gray-600 hover:text-gray-900";
-const activeClass = "font-semibold text-gray-900 underline underline-offset-8";
-
+// 9주차: 헤더 전체를 Client Component로 만들지 않고, 상호작용·브라우저 상태가 필요한 부분만 분리
+// - 로고, 검색 아이콘: 항상 같음 → Server Component (브라우저로 JS를 안 보냄)
+// - 메뉴 밑줄: 현재 주소(usePathname)가 필요 → HeaderNav (Client)
+// - 로그인/마이페이지 버튼: localStorage 토큰 + 내 정보 query → HeaderAuthButton (Client)
 export function Header() {
-  const accessToken = useAuthStore((state) => state.accessToken);
-  // 내 정보(서버 상태)는 store에 복사하지 않고 query 캐시에서 꺼내 씀
-  const meQuery = useMeQuery();
-
   return (
     <header className="border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
         <div className="flex items-center gap-10">
-          <Link to="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <img src="/icons/movie-icons/movie.svg" alt="" className="h-6 w-6" />
             <span className="text-lg font-bold">UMCine</span>
           </Link>
 
-          <nav className="flex items-center gap-6">
-            <Link to="/" activeOptions={{ exact: true }}>
-              {({ isActive }) => (
-                <span className={cn(navLinkClass, isActive && activeClass)}>영화</span>
-              )}
-            </Link>
-            <Link to="/search" activeOptions={{ includeSearch: false }}>
-              {({ isActive }) => (
-                <span className={cn(navLinkClass, isActive && activeClass)}>검색</span>
-              )}
-            </Link>
-            <Link to="/members">
-              {({ isActive }) => (
-                <span className={cn(navLinkClass, isActive && activeClass)}>회원 API</span>
-              )}
-            </Link>
-            <Link to="/me">
-              {({ isActive }) => (
-                <span className={cn(navLinkClass, isActive && activeClass)}>내 정보</span>
-              )}
-            </Link>
-          </nav>
+          {/* usePathname()은 요청을 받아야 아는 값 → Suspense로 감싸야 나머지 헤더를 미리 만들 수 있음
+              fallback: 밑줄 없는 같은 메뉴 (주소를 알게 되면 밑줄이 있는 메뉴로 바뀜) */}
+          <Suspense fallback={<HeaderNavFallback />}>
+            <HeaderNav />
+          </Suspense>
         </div>
 
         <div className="flex items-center gap-3">
           <Link
-            to="/search"
+            href="/search"
             aria-label="검색"
             className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-gray-100"
           >
             <img src="/icons/movie-icons/search.svg" alt="" className="h-5 w-5" />
           </Link>
-          {/* 토큰 없음 → 로그인 / 첫 조회 중 → 버튼 크기 로딩 / 토큰 있음 → 마이페이지 */}
-          {!accessToken ? (
-            <Link
-              to="/login"
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-            >
-              로그인
-            </Link>
-          ) : meQuery.isLoading ? (
-            <span className="h-9 w-24 animate-pulse rounded-md bg-gray-200" />
-          ) : (
-            <Link
-              to="/me"
-              className="rounded-md border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50"
-            >
-              {meQuery.data ? `${meQuery.data.nickname}님` : "마이페이지"}
-            </Link>
-          )}
+          <HeaderAuthButton />
         </div>
       </div>
     </header>

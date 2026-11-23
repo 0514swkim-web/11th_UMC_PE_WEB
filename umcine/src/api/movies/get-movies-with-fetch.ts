@@ -1,4 +1,5 @@
-import { env } from "../../config/env";
+import "server-only";
+import { serverEnv } from "../../config/server-env";
 import type { TmdbMovieListResponse } from "./models";
 
 type GetMoviesWithFetchResponse = TmdbMovieListResponse;
@@ -12,10 +13,10 @@ async function getMoviesWithFetch(
   });
 
   const response = await fetch(
-    `${env.tmdbApiBaseUrl}/movie/popular?${searchParams}`,
+    `${serverEnv.tmdbApiBaseUrl}/movie/popular?${searchParams}`,
     {
       headers: {
-        Authorization: `Bearer ${env.tmdbAccessToken}`,
+        Authorization: `Bearer ${serverEnv.tmdbAccessToken}`,
       },
     },
   );

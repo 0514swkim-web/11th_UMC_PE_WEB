@@ -1,9 +1,11 @@
-import { useNavigate } from "@tanstack/react-router";
+"use client";
+
+import { useRouter } from "next/navigation";
 import {
   useFavoriteStatusQuery,
   useToggleFavoriteMutation,
 } from "../../hooks/use-favorites";
-import { useAuthStore } from "../../stores/auth-store";
+import { useAuthHydrated, useAuthStore } from "../../stores/auth-store";
 import { cn } from "../../utils/cn";
 
 interface FavoriteToggleButtonProps {
@@ -14,18 +16,21 @@ interface FavoriteToggleButtonProps {
 // 열 때 GET /favorites/{movieId}로 여부를 묻고, 누르면 POST 또는 DELETE
 export function FavoriteToggleButton({ movieId }: FavoriteToggleButtonProps) {
   const accessToken = useAuthStore((state) => state.accessToken);
-  const navigate = useNavigate();
+  const router = useRouter();
   const statusQuery = useFavoriteStatusQuery(movieId);
   const toggleMutation = useToggleFavoriteMutation();
 
   const isFavorite = statusQuery.data?.isFavorite ?? false;
-  const isLoading = Boolean(accessToken) && statusQuery.isPending;
+  const hasHydrated = useAuthHydrated();
+  // 토큰을 아직 못 읽었으면(서버 HTML, 브라우저 첫 화면) "확인 중"으로 보여 줌
+  const isLoading =
+    !hasHydrated || (Boolean(accessToken) && statusQuery.isPending);
   const isBusy = isLoading || toggleMutation.isPending;
 
   const handleClick = () => {
     if (!accessToken) {
       alert("로그인하면 즐겨찾기를 사용할 수 있어요.");
-      navigate({ to: "/login" });
+      router.push("/login");
       return;
     }
     if (isBusy) return;
